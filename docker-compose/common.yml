@@ -1,0 +1,5 @@
+version: '3.7'
+
+networks:
+  neoxia-ma-kafka-demo:
+    driver: bridge
