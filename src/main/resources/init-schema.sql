@@ -1,15 +1,15 @@
-DROP SCHEMA IF EXISTS "order" CASCADE;
+DROP SCHEMA IF EXISTS nxm CASCADE;
 
-CREATE SCHEMA "order";
+CREATE SCHEMA nxm;
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 DROP TYPE IF EXISTS order_status;
 CREATE TYPE order_status AS ENUM ('PENDING', 'PAID', 'APPROVED', 'CANCELLED', 'CANCELLING', 'IN_DELIVERY', 'DELIVERED');
 
-DROP TABLE IF EXISTS "order".orders CASCADE;
+DROP TABLE IF EXISTS nxm.orders CASCADE;
 
-CREATE TABLE "order".orders
+CREATE TABLE nxm.orders
 (
     id uuid NOT NULL,
     customer_id uuid NOT NULL,
@@ -19,64 +19,11 @@ CREATE TABLE "order".orders
     CONSTRAINT orders_pkey PRIMARY KEY (id)
 );
 
-DROP TABLE IF EXISTS "order".order_items CASCADE;
 
-CREATE TABLE "order".order_items
-(
-    id bigint NOT NULL,
-    order_id uuid NOT NULL,
-    product_id uuid NOT NULL,
-    price numeric(10,2) NOT NULL,
-    quantity integer NOT NULL,
-    sub_total numeric(10,2) NOT NULL,
-    CONSTRAINT order_items_pkey PRIMARY KEY (id, order_id)
-);
-
-ALTER TABLE "order".order_items
-    ADD CONSTRAINT "FK_ORDER_ID" FOREIGN KEY (order_id)
-    REFERENCES "order".orders (id) MATCH SIMPLE
-    ON UPDATE NO ACTION
-    ON DELETE CASCADE
-    NOT VALID;
-
-DROP TABLE IF EXISTS "order".order_address CASCADE;
-
-CREATE TABLE "order".order_address
-(
-    id uuid NOT NULL,
-    order_id uuid UNIQUE NOT NULL,
-    street character varying COLLATE pg_catalog."default" NOT NULL,
-    postal_code character varying COLLATE pg_catalog."default" NOT NULL,
-    city character varying COLLATE pg_catalog."default" NOT NULL,
-    CONSTRAINT order_address_pkey PRIMARY KEY (id, order_id)
-);
-
-ALTER TABLE "order".order_address
-    ADD CONSTRAINT "FK_ORDER_ID" FOREIGN KEY (order_id)
-    REFERENCES "order".orders (id) MATCH SIMPLE
-    ON UPDATE NO ACTION
-    ON DELETE CASCADE
-    NOT VALID;
-
-DROP TABLE IF EXISTS "order".customers CASCADE;
-
-CREATE TABLE "order".customers
-(
-    id uuid NOT NULL,
-    username character varying COLLATE pg_catalog."default" NOT NULL,
-    first_name character varying COLLATE pg_catalog."default" NOT NULL,
-    last_name character varying COLLATE pg_catalog."default" NOT NULL,
-    CONSTRAINT customers_pkey PRIMARY KEY (id)
-);
+DROP TABLE IF EXISTS nxm.customers CASCADE;
 
 
-DROP SCHEMA IF EXISTS customer CASCADE;
-
-CREATE SCHEMA customer;
-
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
-CREATE TABLE customer.customers
+CREATE TABLE nxm.customers
 (
     id uuid NOT NULL,
     username character varying COLLATE pg_catalog."default" NOT NULL,
@@ -87,29 +34,14 @@ CREATE TABLE customer.customers
 
 
 
-DROP VIEW IF EXISTS customer.order_customer_view;
 
-
-CREATE VIEW customer.order_customer_view AS
-SELECT id,
-    username,
-    first_name,
-    last_name
-   FROM customer.customers;
-
-
-INSERT INTO customer.customers
+INSERT INTO nxm.customers
 (id, username, first_name, last_name)
 VALUES('d215b5f8-0249-4dc5-89a3-51fd148cfb41'::uuid, 'oussama.abouzid', 'oussama', 'abouzid');
 
+DROP TABLE IF EXISTS nxm.payments CASCADE;
 
-DROP SCHEMA IF EXISTS payment CASCADE;
-
-CREATE SCHEMA payment;
-
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
-CREATE TABLE payment.payments
+CREATE TABLE nxm.payments
 (
     id uuid NOT NULL,
     amount numeric(10,2) NOT NULL,
@@ -118,7 +50,9 @@ CREATE TABLE payment.payments
     CONSTRAINT payments_pkey PRIMARY KEY (id)
 );
 
-CREATE TABLE payment.payments_threshold
+DROP TABLE IF EXISTS nxm.payments_threshold CASCADE;
+
+CREATE TABLE nxm.payments_threshold
 (
     id uuid NOT NULL,
     total_amount numeric(10,2) NOT NULL,
@@ -126,3 +60,18 @@ CREATE TABLE payment.payments_threshold
     order_id uuid NOT NULL,
     CONSTRAINT payments_threshold_pkey PRIMARY KEY (id)
 );
+
+insert into nxm.payments_threshold (id, total_amount, customer_id, order_id) values ('2c3faa84-7047-4e41-a80b-95e03db6e2bb'::uuid, 324322, 'd215b5f8-0249-4dc5-89a3-51fd148cfb41'::uuid, 'bd6c5d4d-f8c3-40b1-be42-70352dd42b84'::uuid);
+
+
+DROP TABLE IF EXISTS nxm.delivery CASCADE;
+
+CREATE TABLE nxm.delivery
+(
+    id uuid NOT NULL,
+    customer_id uuid NOT NULL,
+    order_id uuid NOT NULL,
+    address character varying COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT delivery_pkey PRIMARY KEY (id)
+);
+

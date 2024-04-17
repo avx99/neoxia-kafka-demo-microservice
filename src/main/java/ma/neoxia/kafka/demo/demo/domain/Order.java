@@ -1,9 +1,9 @@
-package neoxia.ma.kafka.demo.data.access.order.entity;
+package ma.neoxia.kafka.demo.demo.domain;
 
 import lombok.*;
-import neoxia.ma.kafka.domain.valueobject.OrderStatus;
+import ma.neoxia.kafka.demo.demo.enums.OrderStatus;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
@@ -14,9 +14,9 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "orders")
+@Table(name = "orders", schema = "nxm")
 @Entity
-public class OrderEntity {
+public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
@@ -26,17 +26,11 @@ public class OrderEntity {
     private OrderStatus orderStatus;
     private String failureMessages;
 
-    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
-    private OrderAddressEntity address;
-
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-    private List<OrderItemEntity> items;
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        OrderEntity that = (OrderEntity) o;
+        Order that = (Order) o;
         return id.equals(that.id);
     }
 
