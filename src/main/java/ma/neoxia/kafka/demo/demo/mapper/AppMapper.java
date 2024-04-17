@@ -17,7 +17,6 @@ public class AppMapper {
                 .customerId(createOrderDto.customerId())
                 .price(createOrderDto.price())
                 .orderStatus(OrderStatus.PENDING)
-//                .address(OrderAddressEntity.builder().street(createOrderDto.address().street()).city(createOrderDto.address().city()).build())
                 .build();
     }
 
